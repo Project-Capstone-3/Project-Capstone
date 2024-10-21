@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 # --- PAGE NAVIGATION ---
-st.sidebar.title("Navigasi")
+st.sidebar.title("DiabetesWise")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
 
 # --- PAGE: HOME ---
