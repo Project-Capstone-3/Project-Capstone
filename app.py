@@ -13,7 +13,7 @@ page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit
 # --- PAGE: HOME ---
 if page == "Home":
     st.title("Selamat Datang di Aplikasi Prediksi Penyakit Diabetes")
-    st.image("https://img.freepik.com/premium-vector/diabetes-control-doctor-checking-blood-sugar-level-elderly-man-using-insulin-pen_442961-229.jpg?w=826", width=700)
+    st.image("https://img.freepik.com/premium-vector/diabetes-control-doctor-checking-blood-sugar-level-elderly-man-using-insulin-pen_442961-229.jpg?w=826", width=826)
     st.write("""
         Aplikasi ini memanfaatkan Machine Learning untuk memprediksi apakah seseorang 
         berisiko terkena diabetes atau tidak. Anda dapat menggunakan fitur-fitur interaktif
