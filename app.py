@@ -14,9 +14,21 @@ st.set_page_config(
 )
 
 # --- Sidebar ---
-st.sidebar.image("Project-Capstone-3/Project-Capstone/SugarGuard.png", use_column_width=True, caption="SugarGuard Logo")
+st.sidebar.image(
+    "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
+    use_column_width=True,
+    caption="SugarGuard Logo",
+)
 st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
+
+if st.sidebar.button("Home"):
+    page = "Home"
+elif st.sidebar.button("About Us"):
+    page = "About Us"
+elif st.sidebar.button("Prediksi Penyakit Diabetes"):
+    page = "Prediksi Penyakit Diabetes"
+else:
+    page = "Home"  # Default Page
 
 # --- Page: Home ---
 if page == "Home":
