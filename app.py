@@ -53,7 +53,8 @@ elif page == "About Us":
     - **Email**: sugarguard@support.com
     - **Instagram**: [@SugarGuard](https://instagram.com)
     """
-
+    )
+    
 # --- Page: Prediksi Penyakit Diabetes ---
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
