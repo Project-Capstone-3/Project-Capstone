@@ -9,33 +9,23 @@ from sklearn.metrics import accuracy_score
 # --- Konfigurasi Halaman ---
 st.set_page_config(
     page_title="SugarGuard - Kenali Risikomu, Prediksi Diabetesmu",
-    page_icon="🩺",
+    page_icon="https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
     layout="wide",
 )
 
 # --- Sidebar ---
 st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
-    use_column_width=True,
-    caption="SugarGuard Logo",
 )
 st.sidebar.title("Navigasi")
-
-if st.sidebar.button("Home"):
-    page = "Home"
-elif st.sidebar.button("About Us"):
-    page = "About Us"
-elif st.sidebar.button("Prediksi Penyakit Diabetes"):
-    page = "Prediksi Penyakit Diabetes"
-else:
-    page = "Home"  # Default Page
+page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
 
 # --- Page: Home ---
 if page == "Home":
     st.title("Selamat Datang di SugarGuard!")
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.image("https://via.placeholder.com/300", use_column_width=True)
+        st.image("https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true", use_column_width=True)
     with col2:
         st.markdown("""
         ### Apa itu SugarGuard?
@@ -48,7 +38,7 @@ if page == "Home":
         - **Visualisasi Data** untuk memahami kesehatan Anda.
         - **Akurasi Tinggi** dari model Machine Learning terbaik.
 
-        **📌 Coba sekarang dan pastikan kesehatan Anda!**
+        ** Coba sekarang dan pastikan kesehatan Anda!**
         """)
 
 # --- Page: About Us ---
@@ -62,7 +52,7 @@ elif page == "About Us":
     ### Kontak Kami
     - **Email**: sugarguard@support.com
     - **Instagram**: [@SugarGuard](https://instagram.com)
-    """)
+    """
 
 # --- Page: Prediksi Penyakit Diabetes ---
 elif page == "Prediksi Penyakit Diabetes":
