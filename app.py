@@ -5,7 +5,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-import plotly.express as px
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -114,7 +113,11 @@ elif page == "Prediksi Penyakit Diabetes":
     accuracy = accuracy_score(y_test, model.predict(X_test))
     st.write(f"**Akurasi Model**: {accuracy*100:.2f}%")
 
-    # Visualization
-    st.subheader("Distribusi Data")
-    fig = px.histogram(data, x="Glucose", nbins=20, title="Distribusi Glukosa pada Dataset", color="Outcome", labels={"Outcome": "Hasil"})
-    st.plotly_chart(fig, use_container_width=True)
+    # Tambahkan elemen interaktif: Bar Chart untuk distribusi data
+    st.subheader('Distribusi Data Pengguna Dibandingkan Data Latihan')
+    chart_data = pd.DataFrame({
+        "Pengguna": input_df.iloc[0],
+        "Rata-rata Data Latihan": data.mean()
+    }).T
+
+    st.bar_chart(chart_data)
