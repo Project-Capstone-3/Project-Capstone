@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import joblib
+import requests
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from io import StringIO
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -54,17 +56,27 @@ elif page == "About Us":
     - **Instagram**: [@SugarGuard](https://instagram.com)
     """
     )
-    
+
 # --- Page: Prediksi Penyakit Diabetes ---
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Load data
+    # Fungsi untuk memuat model SVM dari GitHub
+    @st.cache_resource
+    def load_model():
+        model_url = 'https://github.com/Project-Capstone-3/Project-Capstone/raw/master/svm_model.pkl'
+        response = requests.get(model_url)
+        model = joblib.load(StringIO(response.text))  # Load the model from the downloaded content
+        return model
+
+    svm_model = load_model()
+
+    # Fungsi untuk memuat data lokal dari GitHub CSV
     @st.cache_data
     def load_data():
-        url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
-        columns = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
-        data = pd.read_csv(url, names=columns)
+        data_url = 'https://github.com/Project-Capstone-3/Project-Capstone/raw/master/diabetes.csv'
+        response = requests.get(data_url)
+        data = pd.read_csv(StringIO(response.text))
         return data
 
     data = load_data()
@@ -81,7 +93,7 @@ elif page == "Prediksi Penyakit Diabetes":
         "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
     })
 
-    # Display user input
+    # Tampilkan data input pengguna
     st.subheader("Data Anda")
     st.dataframe(input_df)
 
@@ -92,16 +104,12 @@ elif page == "Prediksi Penyakit Diabetes":
     X_scaled = scaler.fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-    # Train model
-    model = LogisticRegression()
-    model.fit(X_train, y_train)
-
-    # Prediction
+    # Prediksi menggunakan model SVM
     input_scaled = scaler.transform(input_df)
-    prediction = model.predict(input_scaled)
-    prediction_proba = model.predict_proba(input_scaled)
+    prediction = svm_model.predict(input_scaled)
+    prediction_proba = svm_model.predict_proba(input_scaled)
 
-    # Display prediction
+    # Tampilkan hasil prediksi
     st.subheader("Hasil Prediksi")
     diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
     result = f"""
@@ -111,9 +119,9 @@ elif page == "Prediksi Penyakit Diabetes":
     """
     st.markdown(result)
 
-    # Display accuracy
+    # Tampilkan akurasi model
     st.subheader("Akurasi Model")
-    accuracy = accuracy_score(y_test, model.predict(X_test))
+    accuracy = accuracy_score(y_test, svm_model.predict(X_test))
     st.write(f"**Akurasi Model**: {accuracy*100:.2f}%")
 
     # Tambahkan elemen interaktif: Bar Chart untuk distribusi data
