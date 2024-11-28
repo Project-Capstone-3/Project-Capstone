@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 import joblib
 import requests
+import io
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
-from io import StringIO
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -66,7 +66,7 @@ elif page == "Prediksi Penyakit Diabetes":
     def load_model():
         model_url = 'https://github.com/Project-Capstone-3/Project-Capstone/raw/master/svm_model.pkl'
         response = requests.get(model_url)
-        model = joblib.load(StringIO(response.text))  # Load the model from the downloaded content
+        model = joblib.load(io.BytesIO(response.content))  # Use BytesIO for binary data
         return model
 
     svm_model = load_model()
@@ -76,7 +76,7 @@ elif page == "Prediksi Penyakit Diabetes":
     def load_data():
         data_url = 'https://github.com/Project-Capstone-3/Project-Capstone/raw/master/diabetes.csv'
         response = requests.get(data_url)
-        data = pd.read_csv(StringIO(response.text))
+        data = pd.read_csv(io.StringIO(response.text))  # StringIO works fine for CSV text
         return data
 
     data = load_data()
