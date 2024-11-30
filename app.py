@@ -90,7 +90,7 @@ input_data = pd.DataFrame({
     "Feature8": [0],  # Sesuaikan dengan fitur yang diharapkan
     "Feature9": [0],  # Sesuaikan dengan fitur yang diharapkan
     "Feature10": [0], # Sesuaikan dengan fitur yang diharapkan
-})
+    })
 
 
     # Tampilkan data input
