@@ -23,7 +23,7 @@ page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit
 # --- Fungsi Memuat Model ---
 @st.cache_resource
 def load_model():
-    model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model.pkl?raw=true"
+    model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model%20.pkl"
     local_model_path = "svm_model.pkl"
 
     # Unduh model jika belum tersedia di lokal
