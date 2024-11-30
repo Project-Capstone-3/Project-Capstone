@@ -13,7 +13,7 @@ st.set_page_config(
 
 # --- Sidebar ---
 st.sidebar.image(
-    "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
+    "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png",
 )
 st.sidebar.title("Navigasi")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
