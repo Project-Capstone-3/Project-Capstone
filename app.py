@@ -85,11 +85,6 @@ elif page == "Prediksi Penyakit Diabetes":
         "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
         "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
         "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
-        
-        # Menambahkan 3 fitur yang diperlukan untuk melengkapi jumlah menjadi 10
-        "Feature8": [0],  # Sesuaikan dengan fitur yang diharapkan
-        "Feature9": [0],  # Sesuaikan dengan fitur yang diharapkan
-        "Feature10": [0], # Sesuaikan dengan fitur yang diharapkan
     })
 
     # Tampilkan data input
