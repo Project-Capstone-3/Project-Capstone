@@ -18,46 +18,24 @@ st.sidebar.image(
 st.sidebar.title("Navigasi")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit"])
 
-# --- Page: Home ---
-if page == "Home":
-    st.title("Selamat Datang di SugarGuard!")
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        st.image("https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true", use_column_width=True)
-    with col2:
-        st.markdown("""
-        ### Apa itu SugarGuard?
-        SugarGuard adalah aplikasi berbasis **Machine Learning** yang dirancang untuk membantu Anda
-        memprediksi risiko terkena diabetes. Kami menyediakan alat yang mudah digunakan dan
-        akurat untuk membantu pengambilan keputusan kesehatan Anda.
-
-        ### Fitur Utama:
-        - **Prediksi Risiko Diabetes** dengan hasil akurat.
-        - **Visualisasi Data** untuk memahami kesehatan Anda.
-        - **Akurasi Tinggi** dari model Machine Learning terbaik.
-
-        ** Coba sekarang dan pastikan kesehatan Anda!**
-        """)
-
-# --- Page: About Us ---
-elif page == "About Us":
-    st.title("Tentang Kami 👩‍💻👨‍💻")
-    st.markdown("""
-    Kami adalah tim ahli yang memiliki tujuan untuk menggabungkan **teknologi** dan **kesehatan** 
-    demi masa depan yang lebih baik. Dengan menggunakan algoritma pembelajaran mesin, kami ingin
-    membantu lebih banyak orang memahami risiko kesehatan mereka.
-
-    ### Kontak Kami
-    - **Email**: sugarguard@support.com
-    - **Instagram**: [@SugarGuard](https://instagram.com)
-    """
-    )
-
 # --- Page: Prediksi Penyakit Diabetes ---
-elif page == "Prediksi Penyakit":
+if page == "Prediksi Penyakit":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Load data
+    # Load scaler (pastikan scaler sama dengan saat pelatihan)
+    @st.cache_resource
+    def load_scaler():
+        return joblib.load("scaler.pkl")  # Pastikan scaler disimpan saat pelatihan model
+
+    # Load model
+    @st.cache_resource
+    def load_model():
+        return joblib.load("svm_model.pkl")  # Pastikan model tersedia
+
+    scaler = load_scaler()
+    model = load_model()
+
+    # Load data latih (untuk referensi)
     @st.cache_data
     def load_data():
         url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
@@ -83,53 +61,36 @@ elif page == "Prediksi Penyakit":
     st.subheader("Data Anda")
     st.dataframe(input_df)
 
-    # Preprocessing data
-    X = data.drop('Outcome', axis=1)
-
-    # Load scaler (pastikan scaler disimpan saat pelatihan)
-    @st.cache_resource
-    def load_scaler():
-        return joblib.load("scaler.pkl")  # Pastikan file scaler.pkl tersedia
-
-    scaler = load_scaler()
-    X_scaled = scaler.transform(X)
-
-    # Load model
-    @st.cache_resource
-    def load_model():
-        return joblib.load("svm_model.pkl")  # Pastikan path model benar
-
-    model = load_model()
-
-    # Prediction
+    # Transform input data
     input_scaled = scaler.transform(input_df)
-    prediction = model.predict(input_scaled)
-    
-    # Handle prediction score if decision_function is available
-    try:
-        prediction_proba = model.decision_function(input_scaled)
-        score = f"- **Skor Prediksi**: {prediction_proba[0]:.2f}"
-    except AttributeError:
-        score = ""
 
-    # Display prediction
-    st.subheader("Hasil Prediksi")
-    diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
-    result = f"""
-    ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
-    {score}
-    """
-    st.markdown(result)
+    # Log dimensi untuk debugging
+    st.write("Dimensi input:", input_scaled.shape)
+    st.write("Dimensi fitur model:", model.n_features_in_)
 
-    # Display accuracy
-    st.subheader("Akurasi Model")
-    st.write("**Akurasi Model**: 80.00%")
+    # Check input dimensions
+    if input_scaled.shape[1] != model.n_features_in_:
+        st.error("Dimensi input tidak sesuai dengan model. Periksa data atau scaler yang digunakan.")
+    else:
+        # Prediction
+        prediction = model.predict(input_scaled)
 
-    # Tambahkan elemen interaktif: Bar Chart untuk distribusi data
-    st.subheader('Distribusi Data Pengguna Dibandingkan Data Latihan')
-    chart_data = pd.DataFrame({
-        "Pengguna": input_df.iloc[0],
-        "Rata-rata Data Latihan": data.mean()
-    }).T
+        # Handle prediction score if decision_function is available
+        try:
+            prediction_proba = model.decision_function(input_scaled)
+            score = f"- **Skor Prediksi**: {prediction_proba[0]:.2f}"
+        except AttributeError:
+            score = ""
 
-    st.bar_chart(chart_data)
+        # Display prediction
+        st.subheader("Hasil Prediksi")
+        diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
+        result = f"""
+        ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
+        {score}
+        """
+        st.markdown(result)
+
+        # Display accuracy
+        st.subheader("Akurasi Model")
+        st.write("**Akurasi Model**: 80.00%")
