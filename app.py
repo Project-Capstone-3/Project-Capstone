@@ -42,6 +42,13 @@ if page == "Home":
         SugarGuard adalah aplikasi berbasis **Machine Learning** yang dirancang untuk membantu Anda
         memprediksi risiko terkena diabetes. Kami menyediakan alat yang mudah digunakan dan
         akurat untuk membantu pengambilan keputusan kesehatan Anda.
+
+        ### Fitur Utama:
+        - **Prediksi Risiko Diabetes** dengan hasil akurat.
+        - **Visualisasi Data** untuk memahami kesehatan Anda.
+        - **Akurasi Tinggi** dari model Machine Learning terbaik.
+
+        ** Coba sekarang dan pastikan kesehatan Anda!**
         """)
 
 # --- Page: About Us ---
@@ -49,9 +56,15 @@ elif page == "About Us":
     st.title("Tentang Kami 👩‍💻👨‍💻")
     st.markdown("""
     Kami adalah tim ahli yang memiliki tujuan untuk menggabungkan **teknologi** dan **kesehatan** 
-    demi masa depan yang lebih baik.
-    """)
+    demi masa depan yang lebih baik. Dengan menggunakan algoritma pembelajaran mesin, kami ingin
+    membantu lebih banyak orang memahami risiko kesehatan mereka.
 
+    ### Kontak Kami
+    - **Email**: sugarguard@support.com
+    - **Instagram**: [@SugarGuard](https://instagram.com)
+    """
+    )
+    
 # --- Page: Prediksi Penyakit Diabetes ---
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
