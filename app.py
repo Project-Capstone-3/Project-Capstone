@@ -28,7 +28,7 @@ st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
 )
 st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
+page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit"])
 
 # --- Page: Home ---
 if page == "Home":
