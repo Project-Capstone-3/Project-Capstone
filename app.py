@@ -46,51 +46,72 @@ if page == "Prediksi Penyakit":
     data = load_data()
 
     st.sidebar.header("Masukkan Data Anda")
-    input_df = pd.DataFrame({
-        "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
-        "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
-        "BloodPressure": [st.sidebar.slider("Tekanan Darah (BloodPressure)", 0, 122, 70)],
-        "SkinThickness": [st.sidebar.slider("Ketebalan Kulit (SkinThickness)", 0, 99, 20)],
-        "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
-        "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
-        "DiabetesPedigreeFunction": [st.sidebar.slider("Fungsi Pedigree Diabetes", 0.0, 2.42, 0.47)],
-        "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
-    })
+    with st.sidebar.form("input_form"):
+        pregnancies = st.text_input("Kehamilan (Pregnancies)", "3")
+        glucose = st.text_input("Glukosa (Glucose)", "120")
+        blood_pressure = st.text_input("Tekanan Darah (BloodPressure)", "70")
+        skin_thickness = st.text_input("Ketebalan Kulit (SkinThickness)", "20")
+        insulin = st.text_input("Insulin", "79")
+        bmi = st.text_input("BMI", "20.0")
+        diabetes_pedigree_function = st.text_input("Fungsi Pedigree Diabetes", "0.47")
+        age = st.text_input("Usia", "33")
+        
+        # Tombol submit
+        submitted = st.form_submit_button("Prediksi")
 
-    # Display user input
-    st.subheader("Data Anda")
-    st.dataframe(input_df)
-
-    # Transform input data
-    input_scaled = scaler.transform(input_df)
-
-    # Log dimensi untuk debugging
-    st.write("Dimensi input:", input_scaled.shape)
-    st.write("Dimensi fitur model:", model.n_features_in_)
-
-    # Check input dimensions
-    if input_scaled.shape[1] != model.n_features_in_:
-        st.error("Dimensi input tidak sesuai dengan model. Periksa data atau scaler yang digunakan.")
-    else:
-        # Prediction
-        prediction = model.predict(input_scaled)
-
-        # Handle prediction score if decision_function is available
+    if submitted:
+        # Validasi input
         try:
-            prediction_proba = model.decision_function(input_scaled)
-            score = f"- **Skor Prediksi**: {prediction_proba[0]:.2f}"
-        except AttributeError:
-            score = ""
+            input_data = {
+                "Pregnancies": float(pregnancies),
+                "Glucose": float(glucose),
+                "BloodPressure": float(blood_pressure),
+                "SkinThickness": float(skin_thickness),
+                "Insulin": float(insulin),
+                "BMI": float(bmi),
+                "DiabetesPedigreeFunction": float(diabetes_pedigree_function),
+                "Age": float(age),
+            }
+            input_df = pd.DataFrame([input_data])
 
-        # Display prediction
-        st.subheader("Hasil Prediksi")
-        diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
-        result = f"""
-        ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
-        {score}
-        """
-        st.markdown(result)
+            # Display user input
+            st.subheader("Data Anda")
+            st.dataframe(input_df)
 
-        # Display accuracy
-        st.subheader("Akurasi Model")
-        st.write("**Akurasi Model**: 80.00%")
+            # Transform input data
+            input_scaled = scaler.transform(input_df)
+
+            # Log dimensi untuk debugging
+            st.write("Dimensi input:", input_scaled.shape)
+            st.write("Dimensi fitur model:", model.n_features_in_)
+
+            # Check input dimensions
+            if input_scaled.shape[1] != model.n_features_in_:
+                st.error("Dimensi input tidak sesuai dengan model. Periksa data atau scaler yang digunakan.")
+            else:
+                # Prediction
+                prediction = model.predict(input_scaled)
+
+                # Handle prediction score if decision_function is available
+                try:
+                    prediction_proba = model.decision_function(input_scaled)
+                    score = f"- **Skor Prediksi**: {prediction_proba[0]:.2f}"
+                except AttributeError:
+                    score = ""
+
+                # Display prediction
+                st.subheader("Hasil Prediksi")
+                diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
+                result = f"""
+                ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
+                {score}
+                """
+                st.markdown(result)
+
+                # Display accuracy
+                st.subheader("Akurasi Model")
+                st.write("**Akurasi Model**: 80.00%")
+
+        except ValueError:
+            st.error("Mohon masukkan data numerik yang valid!")
+
