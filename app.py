@@ -1,10 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+import joblib  # Untuk memuat model dari file .pkl
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -19,6 +16,16 @@ st.sidebar.image(
 )
 st.sidebar.title("Navigasi")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
+
+# --- Load Model ---
+@st.cache_resource
+def load_model():
+    # URL to the model
+    model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model.pkl?raw=true"
+    model = joblib.load(model_url)  # Memuat model dari URL
+    return model
+
+model = load_model()
 
 # --- Page: Home ---
 if page == "Home":
@@ -85,21 +92,9 @@ elif page == "Prediksi Penyakit Diabetes":
     st.subheader("Data Anda")
     st.dataframe(input_df)
 
-    # Preprocessing data
-    X = data.drop('Outcome', axis=1)
-    y = data['Outcome']
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-    # Train model
-    model = LogisticRegression()
-    model.fit(X_train, y_train)
-
     # Prediction
-    input_scaled = scaler.transform(input_df)
-    prediction = model.predict(input_scaled)
-    prediction_proba = model.predict_proba(input_scaled)
+    prediction = model.predict(input_df)
+    prediction_proba = model.predict_proba(input_df)
 
     # Display prediction
     st.subheader("Hasil Prediksi")
@@ -110,11 +105,6 @@ elif page == "Prediksi Penyakit Diabetes":
     - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
     """
     st.markdown(result)
-
-    # Display accuracy
-    st.subheader("Akurasi Model")
-    accuracy = accuracy_score(y_test, model.predict(X_test))
-    st.write(f"**Akurasi Model**: {accuracy*100:.2f}%")
 
     # Tambahkan elemen interaktif: Bar Chart untuk distribusi data
     st.subheader('Distribusi Data Pengguna Dibandingkan Data Latihan')
