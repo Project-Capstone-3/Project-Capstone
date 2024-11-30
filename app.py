@@ -7,7 +7,7 @@ import joblib  # Untuk memuat model
 # --- Konfigurasi Halaman ---
 st.set_page_config(
     page_title="SugarGuard - Kenali Risikomu, Prediksi Diabetesmu",
-    page_icon="https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
+    page_icon="https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png",
     layout="wide",
 )
 
@@ -16,7 +16,7 @@ st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png",
 )
 st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
+page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit"])
 
 # --- Page: Home ---
 if page == "Home":
