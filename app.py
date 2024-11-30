@@ -97,7 +97,7 @@ elif page == "Prediksi Penyakit":
     # Load model
     @st.cache_resource
     def load_model():
-        return joblib.load("svm_model .pkl")  # Pastikan path model benar
+        return joblib.load("svm_model.pkl")  # Pastikan path model benar
 
     model = load_model()
 
