@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import requests
 from sklearn.preprocessing import StandardScaler
+import os
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -22,7 +24,16 @@ page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit
 @st.cache_resource
 def load_model():
     model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model.pkl?raw=true"
-    model = joblib.load(model_url)  # Memuat model dari URL
+    local_model_path = "svm_model.pkl"
+
+    # Unduh model jika belum tersedia di lokal
+    if not os.path.exists(local_model_path):
+        with open(local_model_path, "wb") as f:
+            response = requests.get(model_url)
+            f.write(response.content)
+
+    # Muat model dari file lokal
+    model = joblib.load(local_model_path)
     return model
 
 model = load_model()
