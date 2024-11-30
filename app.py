@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib  # Untuk memuat model dari file .pkl
+import requests
+import joblib
+from sklearn.preprocessing import StandardScaler
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -10,22 +12,35 @@ st.set_page_config(
     layout="wide",
 )
 
+# --- Fungsi untuk Memuat Model ---
+@st.cache_resource
+def load_model():
+    url = "https://raw.githubusercontent.com/Project-Capstone-3/Project-Capstone/master/svm_model.pkl"  # Sesuaikan URL model
+    local_filename = "svm_model.pkl"
+    
+    # Unduh file dari URL
+    response = requests.get(url)
+    with open(local_filename, 'wb') as f:
+        f.write(response.content)
+    
+    # Muat model dari file lokal
+    model = joblib.load(local_filename)
+    return model
+
+# Memuat model
+try:
+    model = load_model()
+    st.success("Model berhasil dimuat.")
+except Exception as e:
+    st.error(f"Terjadi kesalahan saat memuat model: {e}")
+
 # --- Sidebar ---
 st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
+    use_column_width=True,
 )
 st.sidebar.title("Navigasi")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
-
-# --- Load Model ---
-@st.cache_resource
-def load_model():
-    # URL to the model
-    model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model.pkl?raw=true"
-    model = joblib.load(model_url)  # Memuat model dari URL
-    return model
-
-model = load_model()
 
 # --- Page: Home ---
 if page == "Home":
@@ -45,7 +60,7 @@ if page == "Home":
         - **Visualisasi Data** untuk memahami kesehatan Anda.
         - **Akurasi Tinggi** dari model Machine Learning terbaik.
 
-        ** Coba sekarang dan pastikan kesehatan Anda!**
+        **Coba sekarang dan pastikan kesehatan Anda!**
         """)
 
 # --- Page: About Us ---
@@ -59,25 +74,14 @@ elif page == "About Us":
     ### Kontak Kami
     - **Email**: sugarguard@support.com
     - **Instagram**: [@SugarGuard](https://instagram.com)
-    """
-    )
-    
+    """)
+
 # --- Page: Prediksi Penyakit Diabetes ---
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Load data
-    @st.cache_data
-    def load_data():
-        url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
-        columns = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
-        data = pd.read_csv(url, names=columns)
-        return data
-
-    data = load_data()
-
-    st.sidebar.header("Masukkan Data Anda")
-    input_df = pd.DataFrame({
+    # Input data pengguna
+    input_data = pd.DataFrame({
         "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
         "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
         "BloodPressure": [st.sidebar.slider("Tekanan Darah (BloodPressure)", 0, 122, 70)],
@@ -88,29 +92,24 @@ elif page == "Prediksi Penyakit Diabetes":
         "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
     })
 
-    # Display user input
     st.subheader("Data Anda")
-    st.dataframe(input_df)
+    st.dataframe(input_data)
 
-    # Prediction
-    prediction = model.predict(input_df)
-    prediction_proba = model.predict_proba(input_df)
+    # Skalakan data pengguna
+    scaler = StandardScaler()
+    input_scaled = scaler.fit_transform(input_data)
 
-    # Display prediction
-    st.subheader("Hasil Prediksi")
-    diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
-    result = f"""
-    ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
-    - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
-    - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
-    """
-    st.markdown(result)
+    # Prediksi menggunakan model
+    try:
+        prediction = model.predict(input_scaled)
+        prediction_proba = model.predict_proba(input_scaled)
 
-    # Tambahkan elemen interaktif: Bar Chart untuk distribusi data
-    st.subheader('Distribusi Data Pengguna Dibandingkan Data Latihan')
-    chart_data = pd.DataFrame({
-        "Pengguna": input_df.iloc[0],
-        "Rata-rata Data Latihan": data.mean()
-    }).T
-
-    st.bar_chart(chart_data)
+        diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
+        st.subheader("Hasil Prediksi")
+        st.markdown(f"""
+        ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
+        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
+        - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
+        """)
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat melakukan prediksi: {e}")
