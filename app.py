@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
-import joblib  # Untuk memuat model
+import joblib
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.decomposition import PCA
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(
@@ -11,107 +12,84 @@ st.set_page_config(
     layout="wide",
 )
 
+# --- Fungsi Memuat Model, Scaler, dan PCA ---
+@st.cache_resource
+def load_model_scaler_pca():
+    # Muat model, scaler, dan PCA
+    model = joblib.load("svm_model.pkl")  # Sesuaikan nama file model
+    scaler = joblib.load("minmax_scaler.pkl")  # Muat scaler MinMaxScaler yang telah disimpan
+    pca = joblib.load("pca_model.pkl")  # Muat model PCA yang telah disimpan
+    return model, scaler, pca
+
+model, scaler, pca = load_model_scaler_pca()
+
 # --- Sidebar ---
 st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
 )
 st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit"])
+page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
+
+# --- Page: Home ---
+if page == "Home":
+    st.title("Selamat Datang di SugarGuard!")
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.image("https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true", use_column_width=True)
+    with col2:
+        st.markdown("""
+        ### Apa itu SugarGuard?
+        SugarGuard adalah aplikasi berbasis **Machine Learning** yang dirancang untuk membantu Anda
+        memprediksi risiko terkena diabetes. Kami menyediakan alat yang mudah digunakan dan
+        akurat untuk membantu pengambilan keputusan kesehatan Anda.
+        """)
+
+# --- Page: About Us ---
+elif page == "About Us":
+    st.title("Tentang Kami 👩‍💻👨‍💻")
+    st.markdown("""
+    Kami adalah tim ahli yang memiliki tujuan untuk menggabungkan **teknologi** dan **kesehatan** 
+    demi masa depan yang lebih baik.
+    """)
 
 # --- Page: Prediksi Penyakit Diabetes ---
-if page == "Prediksi Penyakit":
+elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Load scaler (pastikan scaler sama dengan saat pelatihan)
-    @st.cache_resource
-    def load_scaler():
-        return joblib.load("scaler.pkl")  # Pastikan scaler disimpan saat pelatihan model
+    # Input data pengguna (harus sesuai dengan fitur model)
+    input_data = pd.DataFrame({
+        "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
+        "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
+        "BloodPressure": [st.sidebar.slider("Tekanan Darah (BloodPressure)", 0, 122, 70)],
+        "SkinThickness": [st.sidebar.slider("Ketebalan Kulit (SkinThickness)", 0, 99, 20)],
+        "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
+        "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
+        "DiabetesPedigreeFunction": [st.sidebar.slider("Fungsi Keturunan Diabetes", 0.0, 2.5, 0.5)],
+        "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
+    })
 
-    # Load model
-    @st.cache_resource
-    def load_model():
-        return joblib.load("svm_model.pkl")  # Pastikan model tersedia
+    # Tampilkan data input
+    st.subheader("Data Anda")
+    st.dataframe(input_data)
 
-    scaler = load_scaler()
-    model = load_model()
+    # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
+    try:
+        input_scaled = scaler.transform(input_data)
 
-    # Load data latih (untuk referensi)
-    @st.cache_data
-    def load_data():
-        url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
-        columns = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
-        data = pd.read_csv(url, names=columns)
-        return data
+        # Transformasikan data input dengan PCA
+        input_pca = pca.transform(input_scaled)
 
-    data = load_data()
+        # Prediksi menggunakan model
+        prediction = model.predict(input_pca)
+        prediction_proba = model.predict_proba(input_pca)
 
-    st.sidebar.header("Masukkan Data Anda")
-    with st.sidebar.form("input_form"):
-        pregnancies = st.text_input("Kehamilan (Pregnancies)", "3")
-        glucose = st.text_input("Glukosa (Glucose)", "120")
-        blood_pressure = st.text_input("Tekanan Darah (BloodPressure)", "70")
-        skin_thickness = st.text_input("Ketebalan Kulit (SkinThickness)", "20")
-        insulin = st.text_input("Insulin", "79")
-        bmi = st.text_input("BMI", "20.0")
-        diabetes_pedigree_function = st.text_input("Fungsi Pedigree Diabetes", "0.47")
-        age = st.text_input("Usia", "33")
-        
-        # Tombol submit
-        submitted = st.form_submit_button("Prediksi")
+        diabetes_labels = ['Tidak Diabetes', 'Diabetes']
 
-    if submitted:
-        # Validasi input
-        try:
-            input_data = {
-                "Pregnancies": float(pregnancies),
-                "Glucose": float(glucose),
-                "BloodPressure": float(blood_pressure),
-                "SkinThickness": float(skin_thickness),
-                "Insulin": float(insulin),
-                "BMI": float(bmi),
-                "DiabetesPedigreeFunction": float(diabetes_pedigree_function),
-                "Age": float(age),
-            }
-            input_df = pd.DataFrame([input_data])
-
-            # Display user input
-            st.subheader("Data Anda")
-            st.dataframe(input_df)
-
-            # Transform input data
-            input_scaled = scaler.transform(input_df)
-
-            # Log dimensi untuk debugging
-            st.write("Dimensi input:", input_scaled.shape)
-            st.write("Dimensi fitur model:", model.n_features_in_)
-
-            # Check input dimensions
-            if input_scaled.shape[1] != model.n_features_in_:
-                st.error("Dimensi input tidak sesuai dengan model. Periksa data atau scaler yang digunakan.")
-            else:
-                # Prediction
-                prediction = model.predict(input_scaled)
-
-                # Handle prediction score if decision_function is available
-                try:
-                    prediction_proba = model.decision_function(input_scaled)
-                    score = f"- **Skor Prediksi**: {prediction_proba[0]:.2f}"
-                except AttributeError:
-                    score = ""
-
-                # Display prediction
-                st.subheader("Hasil Prediksi")
-                diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
-                result = f"""
-                ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
-                {score}
-                """
-                st.markdown(result)
-
-                # Display accuracy
-                st.subheader("Akurasi Model")
-                st.write("**Akurasi Model**: 80.00%")
-
-        except ValueError:
-            st.error("Mohon masukkan data numerik yang valid!")
-
+        st.subheader("Hasil Prediksi")
+        st.markdown(f"""
+        ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
+        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
+        - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
+        """)
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat melakukan prediksi: {e}")
