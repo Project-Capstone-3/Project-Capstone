@@ -100,7 +100,7 @@ elif page == "Prediksi Penyakit Diabetes":
     scaler = StandardScaler()
     input_scaled = scaler.fit_transform(input_data)
 
-    # Prediksi menggunakan model
+    # Prediksi menggunakan model#
     try:
         prediction = model.predict(input_scaled)
         prediction_proba = model.predict_proba(input_scaled)
