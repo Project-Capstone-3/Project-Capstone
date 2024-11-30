@@ -61,7 +61,7 @@ elif page == "About Us":
 
     ### Kontak Kami
     - **Email**: sugarguard@support.com
-    - **Instagram**: [@SugarGuard](https://instagram.com)
+    - **Instagram**: [@SugarGuard](https://www.instagram.com/sugardguard/profilecard/?igsh=bWp0N2ZiNHF1andj)
     """
     )
     
