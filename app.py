@@ -15,17 +15,21 @@ st.set_page_config(
 # --- Fungsi Memuat Model, Scaler, dan PCA ---
 @st.cache_resource
 def load_model_scaler_pca():
-    # Muat model, scaler, dan PCA
-    model = joblib.load("svm_model.pkl")  # Sesuaikan nama file model
-    scaler = joblib.load("minmax_scaler.pkl")  # Muat scaler MinMaxScaler yang telah disimpan
-    pca = joblib.load("pca_model.pkl")  # Muat model PCA yang telah disimpan
-    return model, scaler, pca
+    try:
+        model = joblib.load("svm_model.pkl")  # Sesuaikan nama file model
+        scaler = joblib.load("minmax_scaler.pkl")  # Muat scaler MinMaxScaler yang telah disimpan
+        pca = joblib.load("pca_model.pkl")  # Muat model PCA yang telah disimpan
+        return model, scaler, pca
+    except FileNotFoundError as e:
+        st.error(f"File tidak ditemukan: {e}")
+        return None, None, None
 
 model, scaler, pca = load_model_scaler_pca()
 
 # --- Sidebar ---
 st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
+    use_column_width=True
 )
 st.sidebar.title("Navigasi")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit"])
@@ -48,7 +52,7 @@ if page == "Home":
         - **Visualisasi Data** untuk memahami kesehatan Anda.
         - **Akurasi Tinggi** dari model Machine Learning terbaik.
 
-        ** Coba sekarang dan pastikan kesehatan Anda!**
+        **Coba sekarang dan pastikan kesehatan Anda!**
         """)
 
 # --- Page: About Us ---
@@ -62,47 +66,50 @@ elif page == "About Us":
     ### Kontak Kami
     - **Email**: sugarguard@support.com
     - **Instagram**: [@SugarGuard](https://www.instagram.com/sugardguard/profilecard/?igsh=bWp0N2ZiNHF1andj)
-    """
-    )
-    
+    """)
+
 # --- Page: Prediksi Penyakit Diabetes ---
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Input data pengguna (harus sesuai dengan fitur model)
-    input_data = pd.DataFrame({
-        "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
-        "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
-        "BloodPressure": [st.sidebar.slider("Tekanan Darah (BloodPressure)", 0, 122, 70)],
-        "SkinThickness": [st.sidebar.slider("Ketebalan Kulit (SkinThickness)", 0, 99, 20)],
-        "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
-        "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
-        "DiabetesPedigreeFunction": [st.sidebar.slider("Fungsi Keturunan Diabetes", 0.0, 2.5, 0.5)],
-        "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
-    })
+    # Pastikan model, scaler, dan PCA telah dimuat
+    if model is None or scaler is None or pca is None:
+        st.error("Gagal memuat model atau preprocessing. Pastikan file tersedia.")
+    else:
+        # Input data pengguna (harus sesuai dengan fitur model)
+        input_data = pd.DataFrame({
+            "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
+            "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
+            "BloodPressure": [st.sidebar.slider("Tekanan Darah (BloodPressure)", 0, 122, 70)],
+            "SkinThickness": [st.sidebar.slider("Ketebalan Kulit (SkinThickness)", 0, 99, 20)],
+            "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
+            "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
+            "DiabetesPedigreeFunction": [st.sidebar.slider("Fungsi Keturunan Diabetes", 0.0, 2.5, 0.5)],
+            "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
+        })
 
-    # Tampilkan data input
-    st.subheader("Data Anda")
-    st.dataframe(input_data)
+        # Tampilkan data input
+        st.subheader("Data Anda")
+        st.dataframe(input_data)
 
-    # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
-    try:
-        input_scaled = scaler.transform(input_data)
+        try:
+            # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
+            input_scaled = scaler.transform(input_data)
 
-        # Transformasikan data input dengan PCA
-        input_pca = pca.transform(input_scaled)
+            # Transformasikan data input dengan PCA
+            input_pca = pca.transform(input_scaled)
 
-        # Prediksi menggunakan model
-        prediction = model.predict(input_pca)
-        prediction_proba = model.predict_proba(input_pca)
+            # Prediksi menggunakan model
+            prediction = model.predict(input_pca)
+            prediction_proba = model.predict_proba(input_pca)
 
-        diabetes_labels = ['Tidak Diabetes', 'Diabetes']
+            diabetes_labels = ['Tidak Diabetes', 'Diabetes']
 
-        st.subheader("Hasil Prediksi")
-        st.markdown(f"""
-        ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
-        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
-        - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
-        """)
-    except Exception as e:
-        st.error(f"Terjadi kesalahan saat melakukan prediksi: {e}")
+            st.subheader("Hasil Prediksi")
+            st.markdown(f"""
+            ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
+            - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0] * 100:.2f}%
+            - **Probabilitas Diabetes**: {prediction_proba[0][1] * 100:.2f}%
+            """)
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat melakukan prediksi: {e}")
