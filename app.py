@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import requests
 import joblib
 from sklearn.preprocessing import StandardScaler
 
@@ -12,35 +11,21 @@ st.set_page_config(
     layout="wide",
 )
 
-# --- Fungsi untuk Memuat Model ---
-@st.cache_resource
-def load_model():
-    url = "https://raw.githubusercontent.com/Project-Capstone-3/Project-Capstone/master/svm_model.pkl"  # Sesuaikan URL model
-    local_filename = "svm_model.pkl"
-    
-    # Unduh file dari URL
-    response = requests.get(url)
-    with open(local_filename, 'wb') as f:
-        f.write(response.content)
-    
-    # Muat model dari file lokal
-    model = joblib.load(local_filename)
-    return model
-
-# Memuat model
-try:
-    model = load_model()
-    st.success("Model berhasil dimuat.")
-except Exception as e:
-    st.error(f"Terjadi kesalahan saat memuat model: {e}")
-
 # --- Sidebar ---
 st.sidebar.image(
     "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true",
-    use_column_width=True,
 )
 st.sidebar.title("Navigasi")
 page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit Diabetes"])
+
+# --- Fungsi Memuat Model ---
+@st.cache_resource
+def load_model():
+    model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model.pkl?raw=true"
+    model = joblib.load(model_url)  # Memuat model dari URL
+    return model
+
+model = load_model()
 
 # --- Page: Home ---
 if page == "Home":
@@ -60,7 +45,7 @@ if page == "Home":
         - **Visualisasi Data** untuk memahami kesehatan Anda.
         - **Akurasi Tinggi** dari model Machine Learning terbaik.
 
-        **Coba sekarang dan pastikan kesehatan Anda!**
+        ** Coba sekarang dan pastikan kesehatan Anda!**
         """)
 
 # --- Page: About Us ---
@@ -80,7 +65,7 @@ elif page == "About Us":
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Input data pengguna
+    # Input data pengguna (7 fitur yang digunakan oleh model)
     input_data = pd.DataFrame({
         "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
         "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
@@ -88,14 +73,14 @@ elif page == "Prediksi Penyakit Diabetes":
         "SkinThickness": [st.sidebar.slider("Ketebalan Kulit (SkinThickness)", 0, 99, 20)],
         "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
         "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
-        "DiabetesPedigreeFunction": [st.sidebar.slider("Fungsi Pedigree Diabetes", 0.0, 2.42, 0.47)],
         "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
     })
 
+    # Tampilkan data input
     st.subheader("Data Anda")
     st.dataframe(input_data)
 
-    # Skalakan data pengguna
+    # Skalakan data input
     scaler = StandardScaler()
     input_scaled = scaler.fit_transform(input_data)
 
