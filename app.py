@@ -23,7 +23,7 @@ if page == "Home":
     st.title("Selamat Datang di SugarGuard!")
     col1, col2 = st.columns([1, 2])
     with col1:
-        st.image("https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png?raw=true", use_column_width=True)
+        st.image("https://github.com/Project-Capstone-3/Project-Capstone/blob/master/SugarGuard.png", use_column_width=True)
     with col2:
         st.markdown("""
         ### Apa itu SugarGuard?
@@ -54,7 +54,7 @@ elif page == "About Us":
     )
 
 # --- Page: Prediksi Penyakit Diabetes ---
-elif page == "Prediksi Penyakit Diabetes":
+elif page == "Prediksi Penyakit":
     st.title("Prediksi Risiko Diabetes 🩺")
 
     # Load data
