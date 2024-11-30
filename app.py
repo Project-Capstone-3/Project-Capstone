@@ -85,27 +85,39 @@ elif page == "Prediksi Penyakit":
 
     # Preprocessing data
     X = data.drop('Outcome', axis=1)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+
+    # Load scaler (pastikan scaler disimpan saat pelatihan)
+    @st.cache_resource
+    def load_scaler():
+        return joblib.load("scaler.pkl")  # Pastikan file scaler.pkl tersedia
+
+    scaler = load_scaler()
+    X_scaled = scaler.transform(X)
 
     # Load model
     @st.cache_resource
     def load_model():
-        return joblib.load("svm_model .pkl")  # Ganti dengan path model Anda
+        return joblib.load("svm_model.pkl")  # Pastikan path model benar
 
     model = load_model()
 
     # Prediction
     input_scaled = scaler.transform(input_df)
     prediction = model.predict(input_scaled)
-    prediction_proba = model.decision_function(input_scaled)  # Untuk skor prediksi (SVM)
+    
+    # Handle prediction score if decision_function is available
+    try:
+        prediction_proba = model.decision_function(input_scaled)
+        score = f"- **Skor Prediksi**: {prediction_proba[0]:.2f}"
+    except AttributeError:
+        score = ""
 
     # Display prediction
     st.subheader("Hasil Prediksi")
     diabetes = np.array(['Tidak Diabetes', 'Diabetes'])
     result = f"""
     ### Anda berisiko: **{diabetes[prediction][0]}** 🩺
-    - **Skor Prediksi**: {prediction_proba[0]:.2f}
+    {score}
     """
     st.markdown(result)
 
