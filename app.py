@@ -24,7 +24,7 @@ page = st.sidebar.radio("Pilih Halaman", ["Home", "About Us", "Prediksi Penyakit
 @st.cache_resource
 def load_model():
     model_url = "https://github.com/Project-Capstone-3/Project-Capstone/blob/master/svm_model%20.pkl"
-    local_model_path = "svm_model .pkl"  # Perbaiki spasi di nama file
+    local_model_path = "svm_model.pkl"
 
     # Unduh model jika belum tersedia di lokal
     if not os.path.exists(local_model_path):
@@ -76,7 +76,7 @@ elif page == "About Us":
 elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Input data pengguna (7 fitur yang digunakan oleh model)
+    # Input data pengguna (10 fitur yang digunakan oleh model)
     input_data = pd.DataFrame({
         "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
         "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
@@ -85,6 +85,11 @@ elif page == "Prediksi Penyakit Diabetes":
         "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
         "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
         "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
+
+        # Menambahkan 3 fitur lainnya yang diperlukan oleh model
+        "Feature8": [st.sidebar.slider("Feature 8", 0, 100, 50)],  # Sesuaikan dengan fitur yang diharapkan
+        "Feature9": [st.sidebar.slider("Feature 9", 0, 100, 50)],  # Sesuaikan dengan fitur yang diharapkan
+        "Feature10": [st.sidebar.slider("Feature 10", 0, 100, 50)],  # Sesuaikan dengan fitur yang diharapkan
     })
 
     # Tampilkan data input
