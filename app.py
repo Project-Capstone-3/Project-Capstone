@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
@@ -85,8 +84,9 @@ elif page == "Prediksi Penyakit Diabetes":
     st.subheader("Data Anda")
     st.dataframe(input_data)
 
-    # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
+    # Pastikan input_data memiliki bentuk yang benar
     try:
+        # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
         input_scaled = scaler.transform(input_data)
 
         # Transformasikan data input dengan PCA
@@ -101,7 +101,7 @@ elif page == "Prediksi Penyakit Diabetes":
         st.subheader("Hasil Prediksi")
         st.markdown(f"""
         ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
-        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
+        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%  
         - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
         """)
     except Exception as e:
