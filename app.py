@@ -14,11 +14,14 @@ st.set_page_config(
 # --- Fungsi Memuat Model, Scaler, dan PCA ---
 @st.cache_resource
 def load_model_scaler_pca():
-    # Muat model, scaler, dan PCA
-    model = joblib.load("svm_model.pkl")  # Sesuaikan nama file model
-    scaler = joblib.load("minmax_scaler.pkl")  # Muat scaler MinMaxScaler yang telah disimpan
-    pca = joblib.load("pca_model.pkl")  # Muat model PCA yang telah disimpan
-    return model, scaler, pca
+    try:
+        model = joblib.load("svm_model.pkl")  # Cek path model
+        scaler = joblib.load("minmax_scaler.pkl")  # Cek path scaler
+        pca = joblib.load("pca_model.pkl")  # Cek path PCA
+        return model, scaler, pca
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat memuat model atau file lainnya: {e}")
+        return None, None, None
 
 model, scaler, pca = load_model_scaler_pca()
 
@@ -82,15 +85,16 @@ elif page == "Prediksi Penyakit Diabetes":
 
     # Tampilkan data input
     st.subheader("Data Anda")
-    st.dataframe(input_data)
+    st.write(input_data)
 
-    # Pastikan input_data memiliki bentuk yang benar
     try:
         # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
         input_scaled = scaler.transform(input_data)
+        st.write("Data setelah scaling:", input_scaled)
 
         # Transformasikan data input dengan PCA
         input_pca = pca.transform(input_scaled)
+        st.write("Data setelah PCA:", input_pca)
 
         # Prediksi menggunakan model
         prediction = model.predict(input_pca)
@@ -98,6 +102,7 @@ elif page == "Prediksi Penyakit Diabetes":
 
         diabetes_labels = ['Tidak Diabetes', 'Diabetes']
 
+        # Tampilkan hasil prediksi
         st.subheader("Hasil Prediksi")
         st.markdown(f"""
         ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
