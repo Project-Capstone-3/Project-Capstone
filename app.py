@@ -64,7 +64,7 @@ elif page == "About Us":
     """
     )
 
-# --- Page: Prediksi Penyakit Diabetes ---
+# --- Page: Prediksi Penyakit ---
 elif page == "Prediksi Penyakit":
     st.title("Prediksi Risiko Diabetes 🩺")
 
@@ -113,5 +113,31 @@ elif page == "Prediksi Penyakit":
         - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%  
         - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
         """)
+        
+        # Jika terindikasi diabetes, tampilkan saran dan langkah-langkah yang perlu dihindari
+        if prediction[0] == 1:
+            st.subheader("Langkah yang Harus Dihindari dan Saran untuk Penderita Diabetes")
+            st.markdown("""
+            ### Langkah yang Harus Dihindari:
+            - Makanan dan minuman dengan kandungan gula tinggi.
+            - Makanan dengan indeks glikemik tinggi (misalnya roti putih, nasi putih, kentang goreng).
+            - Alkohol (terutama berlebihan).
+            - Kurangnya aktivitas fisik.
+            - Stres berlebihan.
+            
+            ### Makanan yang Perlu Dikonsumsi:
+            - Sayuran hijau (bayam, kale, brokoli).
+            - Legum (kacang-kacangan, lentil).
+            - Karbohidrat dengan indeks glikemik rendah (nasi merah, roti gandum utuh).
+            - Protein sehat (ikan, ayam tanpa kulit, tempe).
+            - Lemak sehat (minyak zaitun, alpukat, kacang-kacangan).
+            - Makanan kaya antioksidan (buah beri, teh hijau, kunyit).
+            
+            ### Obat dan Suplemen yang Perlu Diperhatikan:
+            - Obat diabetes seperti **Metformin** (sesuai dengan resep dokter).
+            - Suplemen seperti **kayumanis** atau **kromium** (dengan persetujuan dokter).
+            
+            **Konsultasikan selalu dengan dokter atau ahli gizi untuk saran lebih lanjut.**
+            """)
     except Exception as e:
         st.error(f"Terjadi kesalahan saat melakukan prediksi: {e}")
