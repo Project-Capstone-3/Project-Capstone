@@ -65,7 +65,7 @@ elif page == "About Us":
     )
 
 # --- Page: Prediksi Penyakit Diabetes ---
-elif page == "Prediksi Penyakit Diabetes":
+elif page == "Prediksi Penyakit":
     st.title("Prediksi Risiko Diabetes 🩺")
 
     # Input data pengguna dengan input angka, bukan slider
