@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import joblib
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
@@ -14,14 +15,11 @@ st.set_page_config(
 # --- Fungsi Memuat Model, Scaler, dan PCA ---
 @st.cache_resource
 def load_model_scaler_pca():
-    try:
-        model = joblib.load("svm_model.pkl")  # Cek path model
-        scaler = joblib.load("minmax_scaler.pkl")  # Cek path scaler
-        pca = joblib.load("pca_model.pkl")  # Cek path PCA
-        return model, scaler, pca
-    except Exception as e:
-        st.error(f"Terjadi kesalahan saat memuat model atau file lainnya: {e}")
-        return None, None, None
+    # Muat model, scaler, dan PCA
+    model = joblib.load("svm_model.pkl")  # Sesuaikan nama file model
+    scaler = joblib.load("minmax_scaler.pkl")  # Muat scaler MinMaxScaler yang telah disimpan
+    pca = joblib.load("pca_model.pkl")  # Muat model PCA yang telah disimpan
+    return model, scaler, pca
 
 model, scaler, pca = load_model_scaler_pca()
 
@@ -85,16 +83,14 @@ elif page == "Prediksi Penyakit":
 
     # Tampilkan data input
     st.subheader("Data Anda")
-    st.write(input_data)
+    st.dataframe(input_data)
 
+    # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
     try:
-        # Skalakan data input menggunakan MinMaxScaler yang telah dilatih
         input_scaled = scaler.transform(input_data)
-        st.write("Data setelah scaling:", input_scaled)
 
         # Transformasikan data input dengan PCA
         input_pca = pca.transform(input_scaled)
-        st.write("Data setelah PCA:", input_pca)
 
         # Prediksi menggunakan model
         prediction = model.predict(input_pca)
@@ -102,11 +98,10 @@ elif page == "Prediksi Penyakit":
 
         diabetes_labels = ['Tidak Diabetes', 'Diabetes']
 
-        # Tampilkan hasil prediksi
         st.subheader("Hasil Prediksi")
         st.markdown(f"""
         ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
-        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%  
+        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
         - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
         """)
     except Exception as e:
