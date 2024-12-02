@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
@@ -64,21 +63,31 @@ elif page == "About Us":
     - **Instagram**: [@SugarGuard](https://www.instagram.com/sugardguard/profilecard/?igsh=bWp0N2ZiNHF1andj)
     """
     )
-    
+
 # --- Page: Prediksi Penyakit Diabetes ---
-elif page == "Prediksi Penyakit":
+elif page == "Prediksi Penyakit Diabetes":
     st.title("Prediksi Risiko Diabetes 🩺")
 
-    # Input data pengguna (harus sesuai dengan fitur model)
+    # Input data pengguna dengan input angka, bukan slider
+    pregnancies = st.number_input("Kehamilan (Pregnancies)", min_value=0, max_value=17, value=3)
+    glucose = st.number_input("Glukosa (Glucose)", min_value=0, max_value=200, value=120)
+    blood_pressure = st.number_input("Tekanan Darah (BloodPressure)", min_value=0, max_value=122, value=70)
+    skin_thickness = st.number_input("Ketebalan Kulit (SkinThickness)", min_value=0, max_value=99, value=20)
+    insulin = st.number_input("Insulin", min_value=0.0, max_value=846.0, value=79.0)
+    bmi = st.number_input("BMI", min_value=0.0, max_value=67.1, value=20.0)
+    diabetes_pedigree_function = st.number_input("Fungsi Keturunan Diabetes", min_value=0.0, max_value=2.5, value=0.5)
+    age = st.number_input("Usia", min_value=21, max_value=81, value=33)
+
+    # Menyusun input data ke dalam DataFrame
     input_data = pd.DataFrame({
-        "Pregnancies": [st.sidebar.slider("Kehamilan (Pregnancies)", 0, 17, 3)],
-        "Glucose": [st.sidebar.slider("Glukosa (Glucose)", 0, 200, 120)],
-        "BloodPressure": [st.sidebar.slider("Tekanan Darah (BloodPressure)", 0, 122, 70)],
-        "SkinThickness": [st.sidebar.slider("Ketebalan Kulit (SkinThickness)", 0, 99, 20)],
-        "Insulin": [st.sidebar.slider("Insulin", 0.0, 846.0, 79.0)],
-        "BMI": [st.sidebar.slider("BMI", 0.0, 67.1, 20.0)],
-        "DiabetesPedigreeFunction": [st.sidebar.slider("Fungsi Keturunan Diabetes", 0.0, 2.5, 0.5)],
-        "Age": [st.sidebar.slider("Usia", 21, 81, 33)],
+        "Pregnancies": [pregnancies],
+        "Glucose": [glucose],
+        "BloodPressure": [blood_pressure],
+        "SkinThickness": [skin_thickness],
+        "Insulin": [insulin],
+        "BMI": [bmi],
+        "DiabetesPedigreeFunction": [diabetes_pedigree_function],
+        "Age": [age],
     })
 
     # Tampilkan data input
@@ -101,7 +110,7 @@ elif page == "Prediksi Penyakit":
         st.subheader("Hasil Prediksi")
         st.markdown(f"""
         ### Anda berisiko: **{diabetes_labels[prediction[0]]}** 🩺
-        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%
+        - **Probabilitas Tidak Diabetes**: {prediction_proba[0][0]*100:.2f}%  
         - **Probabilitas Diabetes**: {prediction_proba[0][1]*100:.2f}%
         """)
     except Exception as e:
